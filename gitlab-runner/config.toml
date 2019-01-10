@@ -1,0 +1,24 @@
+concurrent = 5
+check_interval = 10
+log_level = "debug"
+
+[session_server]
+  session_timeout = 1800
+
+[[runners]]
+  name = "alpine-runner"
+  url = "http://gitlab.docker.loc:8088"
+  token = "sK-ksSzi1QFesLKXg-BS"
+  executor = "docker"
+  [runners.docker]
+    tls_verify = false
+    image = "alpine:latest"
+    privileged = false
+    disable_entrypoint_overwrite = false
+    oom_kill_disable = false
+    disable_cache = false
+    volumes = ["/cache", "/var/run/docker.sock:/var/run/docker.sock"]
+    shm_size = 0
+  [runners.cache]
+    [runners.cache.s3]
+    [runners.cache.gcs]

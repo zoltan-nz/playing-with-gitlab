@@ -1,0 +1,32 @@
+version: '3.7'
+services:
+  gitlab:
+      image: 'gitlab/gitlab-ce:latest'
+      restart: always
+      hostname: 'gitlab.docker.loc'
+      environment:
+        GITLAB_OMNIBUS_CONFIG: |
+          external_url 'http://gitlab.docker.loc:8088'
+          registry_external_url 'https://gitlab.docker.loc:5050'
+          gitlab_rails['gitlab_shell_ssh_port'] = 2224
+          registry['enabled'] = true
+      ports:
+        - '5050:5050'
+        - '8088:8088'
+        - '443:443'
+        - '2224:22'
+      volumes:
+        - '/Users/zoltan/.gitlab/config:/etc/gitlab'
+        - '/Users/zoltan/.gitlab/logs:/var/log/gitlab'
+        - '/Users/zoltan/.gitlab/data:/var/opt/gitlab'
+        - './ssl:/etc/gitlab/ssl'
+        - '/var/run/docker.sock:/var/run/docker.sock'
+  runner:
+    image: 'gitlab/gitlab-runner:alpine'
+    depends_on:
+      - gitlab
+    restart: always
+    volumes:
+      - './gitlab-runner:/etc/gitlab-runner'
+      - '/var/run/docker.sock:/var/run/docker.sock'
+
