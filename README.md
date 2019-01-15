@@ -9,6 +9,10 @@
 - Setup host name. Make sure that `/etc/hosts` is updated if you use localhost for hosting the service.
 - Change port numbers if necessary.
 - Change local folder paths in `volumes` section.
+- On macOS you need to setup `dnsmasq` and loop alias. [Details below](#setup-dnsmasq-with-loopback-alias).
+- On Linux you need to add your domain name (`gitlab.docker.loc`) to point `127.0.0.1`.
+- On macOS don't use `--network host`.
+- On Linux you need to use `--network host`.
 
 ### Notes
 
@@ -25,10 +29,12 @@
 The following command launch the setup script. Run it in your project folder. The `docker-compose.yml` map the `./gitlab-runner` folder to the runner container.
 
 ```bash
-$ docker run --rm -t -i -v $(pwd)/gitlab-runner/config:/etc/gitlab-runner gitlab/gitlab-runner:alpine register
+$ docker run --network host --rm -t -i -v $(pwd)/gitlab-runner:/etc/gitlab-runner gitlab/gitlab-runner:alpine register
 ```
 
 Make sure that always register a new runner with the above command. Don't edit token manually in `config.toml`.
+
+Use `--network host` for accessing other containers. (Important in Linux, but don't use it on macOS.)
 
 Alternative option. In this case you have to install `gitlab-runner` in your host OS.
 
@@ -61,10 +67,16 @@ Articles:
 
 1. Setup loopback alias
 
-Temporarly loopback alias
+Temporarily loopback alias
 
-```bash
-sudo ifconfig lo0 alias 10.254.254.254
+```shell
+$ sudo ifconfig lo0 alias 10.254.254.254
+```
+
+Removing alias
+
+```shell
+$ sudo ifconfig lo0 -alias 10.254.254.254
 ```
 
 Permanent loopback alias
@@ -152,6 +164,8 @@ We can use `certbot`. https://certbot.eff.org/
 ```
 brew install certbot
 ```
+
+Please note Letsencrypt and Cerbot support only public domains.
 
 For localhost development, we can add our previously generated `.crt` to Keychain.
 
